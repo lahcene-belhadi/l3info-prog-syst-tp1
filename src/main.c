@@ -8,9 +8,7 @@
 
 int main(int argc, char* argv[]) {
 
-    char** argv_ = line_to_argv("ls -l u/");
-
-    int val = execute(argv_);
+    minibash();
 
     return 0;
 

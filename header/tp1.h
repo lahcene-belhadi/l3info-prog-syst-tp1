@@ -3,6 +3,9 @@
 
 #define MAX_ARG 100
 
+void minibash(void);
+void force_exit(int);
+
 char** line_to_argv(char*);
 char* argv_to_line(char**);
 

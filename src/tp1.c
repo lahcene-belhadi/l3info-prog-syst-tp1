@@ -1,4 +1,5 @@
 
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,6 +8,49 @@
 
 #include "../header/tp1.h"
 
+
+/**
+ * Receives commands from the terminal and execute them
+ */
+void minibash(void) {
+
+    // If receive a SIGINT : Stop the bash
+    signal(SIGQUIT, force_exit);
+
+    // Run until it receives an interrupt signal
+    while (1) {
+
+        printf("Enter a command > ");
+
+        // Receive the input
+        char* input = (char*) malloc(MAX_ARG * sizeof(char));
+        
+        // Reads from the standard input
+        fgets(input, MAX_ARG, stdin);
+
+        // Build argv
+        char** argv_ = line_to_argv(input);
+
+        // Execute the command
+        int value = execute(argv_);
+
+        if (value != 0) {
+
+            printf("An error occured : %d\n", value);
+
+        }
+
+    }
+
+}
+
+void force_exit(int signal_) {
+
+    printf("Closing ... \n");
+
+    exit(0);
+
+}
 
 /**
  * Converts the command line to the argv array
