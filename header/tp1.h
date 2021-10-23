@@ -4,13 +4,16 @@
 #define MAX_ARG 100
 
 void minibash(void);
-void force_exit(int);
 
+char** resize_argv(char**);
+
+char** file_to_argv(char*, int*);
 char** line_to_argv(char*);
+
 char* argv_to_line(char**);
 
-int execute(char**);
-
 void display_argv(char**);
+
+int execute(char**);
 
 #endif

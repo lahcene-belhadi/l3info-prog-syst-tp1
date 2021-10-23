@@ -7,6 +7,7 @@
 #include <sys/wait.h>
 
 #include "../header/tp1.h"
+#include "../header/utils.h"
 
 
 /**
@@ -46,6 +47,37 @@ void minibash(void) {
 }
 
 /**
+ * Reads a file and extracts its content to an argv array
+ */
+char** file_to_argv(char* filename, int* nbcmd) {
+
+    // Open the file
+    FILE* data = fopen(filename, "r");
+
+    if (data == NULL) {
+     
+        printf("Error : Unable to open the file \"%s\".\n", filename);
+        exit(EXIT_FAILURE);
+    
+    }
+
+    // Stores the line read from the file
+    char* line = (char*) malloc(MAX_ARG);
+
+    line = fgets(line, MAX_ARG, data);
+
+    // Add line to argv
+    char** argv_ = line_to_argv(line);
+
+    fclose(data);
+
+    argv_ = resize_argv(argv_);
+
+    return argv_;
+
+}
+
+/**
  * Converts the command line to the argv array
  */
 char** line_to_argv(char* line) {
@@ -77,24 +109,9 @@ char** line_to_argv(char* line) {
     // Add NULL at the end of the argv
     arg[i] = NULL;
 
-    // Prepare re allocation
-    char** true_argv = (char**) malloc(i * sizeof(char*));
+    arg = resize_argv(arg);
 
-    // Add all the content of argv_ to true_argv
-    unsigned int j = 0;
-
-    while (j < i) {
-
-        // Transfer data from arg to true_argv
-        true_argv[j] = strdup(arg[j]);
-        j++;
-
-    }
-
-    // Release previous array from the heap
-    free(arg);
-
-    return true_argv;
+    return arg;
 
 }
 
@@ -104,7 +121,7 @@ char** line_to_argv(char* line) {
 char* argv_to_line(char** argv_) {
 
     // Command line
-    char* line = (char*) malloc(100);
+    char* line = (char*) malloc(MAX_ARG);
 
     // Get the first word
     char* current = argv_[0]; 
