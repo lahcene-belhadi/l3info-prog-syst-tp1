@@ -14,9 +14,6 @@
  */
 void minibash(void) {
 
-    // If receive a SIGINT : Stop the bash
-    signal(SIGQUIT, force_exit);
-
     // Run until it receives an interrupt signal
     while (1) {
 
@@ -26,7 +23,11 @@ void minibash(void) {
         char* input = (char*) malloc(MAX_ARG * sizeof(char));
         
         // Reads from the standard input
-        fgets(input, MAX_ARG, stdin);
+        char* check_eof = fgets(input, MAX_ARG, stdin);
+
+        // If the user presses ctrl+d 
+        if (check_eof == NULL)
+            exit(0);
 
         // Build argv
         char** argv_ = line_to_argv(input);
@@ -41,14 +42,6 @@ void minibash(void) {
         }
 
     }
-
-}
-
-void force_exit(int signal_) {
-
-    printf("Closing ... \n");
-
-    exit(0);
 
 }
 
