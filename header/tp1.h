@@ -6,6 +6,8 @@
 
 void minibash(void);
 void exec_file(char*);
+int exec_batch(char**);
+void exec_file_batch(char*);
 
 char** resize_argv(char**);
 

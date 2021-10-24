@@ -46,6 +46,21 @@ void minibash(void) {
 
 }
 
+/** 
+ * Receives a command, execute it but don't wait the end of the process
+ */
+int exec_batch(char ** command) {
+
+    int chld = fork();
+    int retval = 0;
+
+    if (chld == 0)
+        retval = execute(command);
+    
+    return retval;
+
+}
+
 /**
  * Reads commands from a file and execute them
  */

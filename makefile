@@ -6,7 +6,7 @@ buildb: src/*.c
 	gcc -g -c src/*.c
 
 linkdb:
-	gcc -g -o bin/tp1 *.o
+	gcc -g -o bin/tp1db *.o
 
 clear:
 	rm *.o
