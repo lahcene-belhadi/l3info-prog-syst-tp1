@@ -49,7 +49,10 @@ void minibash(void) {
 /**
  * Reads a file and extracts its content to an argv array
  */
-char** file_to_argv(char* filename, int* nbcmd) {
+char*** file_to_argv(char* filename, int* nbcmd) {
+
+    // Array of argv
+    char*** arr_argv = (char***) malloc(MAX_CMD * sizeof(char**));
 
     // Open the file
     FILE* data = fopen(filename, "r");
@@ -66,14 +69,29 @@ char** file_to_argv(char* filename, int* nbcmd) {
 
     line = fgets(line, MAX_ARG, data);
 
-    // Add line to argv
-    char** argv_ = line_to_argv(line);
+    // Count the number of commands
+    unsigned int nb = 0;
+
+    while (line) {
+        
+        // Add line to argv
+        char** argv_ = line_to_argv(line);
+
+        // Add argv to the array of argv
+        arr_argv[nb] = argv_;
+
+        nb++;
+
+        // Move to the next line
+        line = fgets(line, MAX_ARG, data);
+
+    }
+
+    *nbcmd = nb;
 
     fclose(data);
 
-    argv_ = resize_argv(argv_);
-
-    return argv_;
+    return arr_argv;
 
 }
 
