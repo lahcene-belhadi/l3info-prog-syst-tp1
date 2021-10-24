@@ -47,6 +47,26 @@ void minibash(void) {
 }
 
 /**
+ * Reads commands from a file and execute them
+ */
+void exec_file(char* filename) {
+
+    int nbcmd = 0;
+    char*** commands = file_to_argv(filename, &nbcmd);
+
+    for (int i=0; i < nbcmd; i++) {
+
+        char** command = commands[i];
+
+        execute(command);
+
+    }
+
+    printf("exec_file: FIN\n");
+
+}
+
+/**
  * Reads a file and extracts its content to an argv array
  */
 char*** file_to_argv(char* filename, int* nbcmd) {

@@ -5,6 +5,7 @@
 #define MAX_CMD 1000
 
 void minibash(void);
+void exec_file(char*);
 
 char** resize_argv(char**);
 
