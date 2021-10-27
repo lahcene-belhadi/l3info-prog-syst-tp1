@@ -51,13 +51,58 @@ void minibash(void) {
  */
 int exec_batch(char ** command) {
 
-    int chld = fork();
+    // Init
+    int ret_val, ret_child, wchild = 0;
+
+    // Create a child and return the pid
+    int pid = fork();
+
+    // If we're currently in the child (pid == 0)
+    if (pid == 0) {
+
+        // Execute the command
+        ret_val = execvp(command[0], command);
+
+        // If the command didn't encounter any problem
+        if (ret_val != -1) 
+            exit(EXIT_SUCCESS);
+        
+        else
+            exit(ret_val);
+
+    }
+    // If it's the father
+    else if (pid > 0) 
+        // Get the child return value
+        ret_child = 0;
+
+    return 0;
+
+}
+
+/**
+ * Executes all the commands contained in a file
+ */
+void exec_file_batch(char * filename) {
+
+    int nbcmd = 0;
+    char*** commands = file_to_argv(filename, &nbcmd);
+
     int retval = 0;
 
-    if (chld == 0)
-        retval = execute(command);
+    for (int i=0; i < nbcmd; i++) {
     
-    return retval;
+        char** cmd = commands[i];
+        retval = exec_batch(cmd);
+
+    }
+
+    // Wait all the process to end
+    int ret = 0;
+    int res;
+
+    for (int i=0; i < nbcmd; i++)
+        res = wait(&ret);
 
 }
 
@@ -73,7 +118,7 @@ void exec_file(char* filename) {
 
         char** command = commands[i];
 
-        execute(command);
+        exec_batch(command);
 
     }
 

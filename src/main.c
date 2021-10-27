@@ -8,7 +8,7 @@
 
 int main(int argc, char* argv[]) {
 
-    exec_file("argv.txt");
+    exec_file_batch("filebatch.txt");
 
     return 0;
 
