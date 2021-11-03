@@ -5,22 +5,10 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#include <time.h>
 
 #include "../header/tp1.h"
 #include "../header/utils.h"
 
-
-typedef struct CommandRecord {
-
-    int pid;
-    int status;
-    int retval;
-    time_t begin;
-    time_t end;
-    char** argv_;
-
-} CommandRecord;
 
 /**
  * Receives commands from the terminal and execute them
@@ -95,97 +83,151 @@ int exec_batch(char ** command) {
 /**
  * Executes all the commands contained in a file
  */
-void exec_file_batch(char * filename) {
+// void exec_file_batch(char * filename) {
 
-    int nbcmd = 0;
-    char*** commands = file_to_argv(filename, &nbcmd);
+//     int nbcmd = 0;
+//     char*** commands = file_to_argv(filename, &nbcmd);
 
-    int retval = 0;
+//     int retval = 0;
 
-    for (int i=0; i < nbcmd; i++) {
+//     for (int i=0; i < nbcmd; i++) {
     
-        char** cmd = commands[i];
-        retval = exec_batch(cmd);
+//         char** cmd = commands[i];
+//         retval = exec_batch(cmd);
 
-    }
+//     }
 
-    // Wait all the process to end
-    int ret = 0;
-    int res;
+//     // Wait all the process to end
+//     int ret = 0;
+//     int res;
 
-    for (int i=0; i < nbcmd; i++)
-        res = wait(&ret);
+//     for (int i=0; i < nbcmd; i++)
+//         res = wait(&ret);
 
-}
+// }
 
 /**
  * Reads commands from a file and execute them
  */
-void exec_file(char* filename) {
+// void exec_file(char* filename) {
 
-    int nbcmd = 0;
-    char*** commands = file_to_argv(filename, &nbcmd);
+//     int nbcmd = 0;
+//     char*** commands = file_to_argv(filename, &nbcmd);
 
-    for (int i=0; i < nbcmd; i++) {
+//     for (int i=0; i < nbcmd; i++) {
 
-        char** command = commands[i];
+//         char** command = commands[i];
 
-        exec_batch(command);
+//         exec_batch(command);
+
+//     }
+
+//     printf("exec_file: FIN\n");
+
+// }
+
+/**
+ * Reads a file and extract its content to a CommandRecord array
+ */
+CommandRecord* file_to_record(char* filename, int* nbCmd) {
+
+    // Prepare the command record array
+    CommandRecord* commands_array = (CommandRecord*) malloc(
+        MAX_CMD * sizeof(CommandRecord)
+    );
+
+    // Open the file
+    FILE* data = fopen(filename, "r");
+
+    if (data == NULL) {
+
+        printf("Error : Unable to open the file \"%s\".\n", filename);
+        exit(EXIT_FAILURE);
 
     }
 
-    printf("exec_file: FIN\n");
+    // Allows you to read a line from the file
+    char* line = (char*) malloc(MAX_ARG);
+    line = fgets(line, MAX_ARG, data);
+
+    // Commands counter
+    unsigned int nb = 0;
+
+    while (line) {
+
+        // Generate the command record
+        CommandRecord record;
+
+        // Converts the current line to an argv
+        char** argv_ = line_to_argv(line);
+
+        // Add the generated argv to the command record
+        record.argv = argv_;
+
+        // Add the command record to the command record array
+        commands_array[nb] = record;
+
+        // Move to the next line
+        nb++;
+        line = fgets(line, MAX_ARG, data);
+
+    }
+
+    // Update the number of commands
+    *nbCmd = nb;
+
+    return commands_array;
 
 }
 
 /**
  * Reads a file and extracts its content to an argv array
  */
-char*** file_to_argv(char* filename, int* nbcmd) {
+// char*** file_to_argv(char* filename, int* nbcmd) {
 
-    // Array of argv
-    char*** arr_argv = (char***) malloc(MAX_CMD * sizeof(char**));
+//     // Array of argv
+//     char*** arr_argv = (char***) malloc(MAX_CMD * sizeof(char**));
 
-    // Open the file
-    FILE* data = fopen(filename, "r");
+//     // Open the file
+//     FILE* data = fopen(filename, "r");
 
-    if (data == NULL) {
+//     if (data == NULL) {
      
-        printf("Error : Unable to open the file \"%s\".\n", filename);
-        exit(EXIT_FAILURE);
+//         printf("Error : Unable to open the file \"%s\".\n", filename);
+//         exit(EXIT_FAILURE);
     
-    }
+//     }
 
-    // Stores the line read from the file
-    char* line = (char*) malloc(MAX_ARG);
+//     // Stores the line read from the file
+//     char* line = (char*) malloc(MAX_ARG);
 
-    line = fgets(line, MAX_ARG, data);
+//     line = fgets(line, MAX_ARG, data);
 
-    // Count the number of commands
-    unsigned int nb = 0;
+//     // Count the number of commands
+//     unsigned int nb = 0;
 
-    while (line) {
+//     while (line) {
         
-        // Add line to argv
-        char** argv_ = line_to_argv(line);
+//         // Add line to argv
+//         char** argv_ = line_to_argv(line);
 
-        // Add argv to the array of argv
-        arr_argv[nb] = argv_;
+//         // Add argv to the array of argv
+//         arr_argv[nb] = argv_;
 
-        nb++;
+//         nb++;
 
-        // Move to the next line
-        line = fgets(line, MAX_ARG, data);
+//         // Move to the next line
+//         line = fgets(line, MAX_ARG, data);
 
-    }
+//     }
 
-    *nbcmd = nb;
+//     *nbcmd = nb;
 
-    fclose(data);
+//     fclose(data);
 
-    return arr_argv;
+//     return arr_argv;
 
-}
+// }
 
 /**
  * Converts the command line to the argv array
