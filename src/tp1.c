@@ -1,8 +1,10 @@
 
+#include <bits/types.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 #include <sys/wait.h>
 
@@ -49,13 +51,15 @@ void minibash(void) {
 /** 
  * Receives a command, execute it but don't wait the end of the process
  */
-int exec_batch(char ** command) {
+int exec_batch(char ** command, CommandRecord* record) {
 
     // Init
     int ret_val, ret_child, wchild = 0;
 
     // Create a child and return the pid
     int pid = fork();
+
+    record->pid = pid;
 
     // If we're currently in the child (pid == 0)
     if (pid == 0) {
@@ -83,28 +87,71 @@ int exec_batch(char ** command) {
 /**
  * Executes all the commands contained in a file
  */
-// void exec_file_batch(char * filename) {
+void exec_file_batch(char * filename) {
 
-//     int nbcmd = 0;
-//     char*** commands = file_to_argv(filename, &nbcmd);
+    int nbcmd = 0;
+    CommandRecord* commands = file_to_record(filename, &nbcmd);
 
-//     int retval = 0;
+    int retval = 0;
 
-//     for (int i=0; i < nbcmd; i++) {
+    for (int i=0; i < nbcmd; i++) {
+        
+        CommandRecord* current = &commands[i];        
+
+        char** cmd = current->argv;
+
+        // Tells that command is being executed
+        current->status = 1;
+
+        // Get the time when the command had been executed
+        time_t begin = time(&begin);
+        current->begin = begin;
+
+        retval = exec_batch(cmd, current);
+
+
+    }
+
+    // Wait for all the process to end
+    int ret = 0;
+    int pid;
+
+    for (int i=0; i < nbcmd; i++) {
+
+        pid = wait(&ret);
+
+        time_t end = time(&end);
+
+        CommandRecord* record_ = get_record(&pid, commands, nbcmd);
+        
+        if (record_)
+            printf("The process %d exists\n", pid);
+        
+        else 
+            printf("The process %d doesn't exist", pid);
     
-//         char** cmd = commands[i];
-//         retval = exec_batch(cmd);
+    }
 
-//     }
+}
 
-//     // Wait all the process to end
-//     int ret = 0;
-//     int res;
+/**
+ * Checks whether the record exists or not, if the record exists, returns its
+ * reference. Otherwise, returns NULL.
+ */
+CommandRecord* get_record(const int* pid, CommandRecord* records, int nbCmd) {
 
-//     for (int i=0; i < nbcmd; i++)
-//         res = wait(&ret);
+    for (int i=0; i < nbCmd; i++) {
 
-// }
+        CommandRecord current = records[i];
+
+        if (current.pid == *pid)
+            return &records[i];
+
+    }
+
+    return NULL;
+
+}
 
 /**
  * Reads commands from a file and execute them
@@ -163,6 +210,9 @@ CommandRecord* file_to_record(char* filename, int* nbCmd) {
 
         // Add the generated argv to the command record
         record.argv = argv_;
+
+        // Tells that the command had not been yet executed
+        record.status = -1;
 
         // Add the command record to the command record array
         commands_array[nb] = record;
