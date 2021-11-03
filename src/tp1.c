@@ -5,10 +5,22 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <time.h>
 
 #include "../header/tp1.h"
 #include "../header/utils.h"
 
+
+typedef struct CommandRecord {
+
+    int pid;
+    int status;
+    int retval;
+    time_t begin;
+    time_t end;
+    char** argv_;
+
+} CommandRecord;
 
 /**
  * Receives commands from the terminal and execute them

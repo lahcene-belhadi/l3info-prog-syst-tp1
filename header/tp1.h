@@ -2,7 +2,7 @@
 #define HEADER_TP1_H
 
 #define MAX_ARG 100
-#define MAX_CMD 1000
+#define MAX_CMD 1000 
 
 void minibash(void);
 void exec_file(char*);
