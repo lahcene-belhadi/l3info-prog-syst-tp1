@@ -109,7 +109,6 @@ void exec_file_batch(char * filename) {
 
         retval = exec_batch(cmd, current);
 
-
     }
 
     // Wait for all the process to end
@@ -120,12 +119,23 @@ void exec_file_batch(char * filename) {
 
         pid = wait(&ret);
 
+        // Set the end of the process for the record
         time_t end = time(&end);
 
         CommandRecord* record_ = get_record(&pid, commands, nbcmd);
         
-        if (record_)
-            printf("The process %d exists\n", pid);
+        if (record_) {
+         
+            record_->end = end;
+
+            // Set the retval
+            record_->retval = ret;
+
+            time_t duration = record_->end - record_->begin;
+
+            printf("FIN : Le processus s'est execute en %lds\n", duration);
+        
+        }
         
         else 
             printf("The process %d doesn't exist", pid);
