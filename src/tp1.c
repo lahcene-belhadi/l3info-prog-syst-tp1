@@ -115,6 +115,7 @@ void exec_file_batch(char * filename) {
     int ret = 0;
     int pid;
 
+    time_t total_duration = 0;
     for (int i=0; i < nbcmd; i++) {
 
         pid = wait(&ret);
@@ -123,17 +124,23 @@ void exec_file_batch(char * filename) {
         time_t end = time(&end);
 
         CommandRecord* record_ = get_record(&pid, commands, nbcmd);
-        
+
         if (record_) {
          
             record_->end = end;
+            record_->status = 0;
 
             // Set the retval
             record_->retval = ret;
 
             time_t duration = record_->end - record_->begin;
 
-            printf("FIN : Le processus s'est execute en %lds\n", duration);
+            total_duration += duration;
+
+            printf("Record %s : %d %d %ld %ld %ld\n", 
+                argv_to_line(record_->argv), record_->pid, record_->status,
+                record_->begin, record_->end, duration
+            );
         
         }
         
@@ -141,6 +148,8 @@ void exec_file_batch(char * filename) {
             printf("The process %d doesn't exist", pid);
     
     }
+
+    printf("FIN : Les processus se sont executes en %lds\n", total_duration);
 
 }
 
