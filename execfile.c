@@ -10,7 +10,7 @@
 int main(int argc, char* argv[]) {
 
     if (argc > 1) 
-        exec_file_batch(argv[1]);
+        exec_file_batch(argv[1], atoi(argv[2]));
     
     else 
         printf("Error: No filename provided.\n");

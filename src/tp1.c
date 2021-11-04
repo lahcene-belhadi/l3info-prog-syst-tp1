@@ -87,14 +87,25 @@ int exec_batch(char ** command, CommandRecord* record) {
 /**
  * Executes all the commands contained in a file
  */
-void exec_file_batch(char * filename) {
+void exec_file_batch(char * filename, unsigned int limit) {
 
     int nbcmd = 0;
     CommandRecord* commands = file_to_record(filename, &nbcmd);
 
+    // Stores the amound of commands to execute
+    int to_exec = nbcmd;
+
+    // Cap the amount of commands to execute
+    if (to_exec > limit)
+        to_exec = limit;
+
+    // Reminder to know which command to execute next once a command had been
+    // executed. In other words: Stores the id of the command to execute next
+    unsigned int rmd = to_exec;  // Begins at the last command+1
+
     int retval = 0;
 
-    for (int i=0; i < nbcmd; i++) {
+    for (int i=0; i < to_exec; i++) {
         
         CommandRecord* current = &commands[i];        
 
@@ -141,11 +152,24 @@ void exec_file_batch(char * filename) {
                 argv_to_line(record_->argv), record_->pid, record_->status,
                 record_->begin, record_->end, duration
             );
+
+            // Execute the empty process space
+            if (nbcmd > limit) {
+
+                // Execute the next command if it exists
+                if (rmd < nbcmd) {
+
+                    exec_batch(commands[rmd].argv, &commands[rmd]);
+                    rmd++;
+
+                }
+
+            }
         
         }
         
         else 
-            printf("The process %d doesn't exist", pid);
+            printf("The process %d doesn't exist\n", pid);
     
     }
 

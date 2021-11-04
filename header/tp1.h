@@ -21,7 +21,7 @@ typedef struct CommandRecord {
 void minibash(void);
 void exec_file(char*);
 int exec_batch(char**, CommandRecord*);
-void exec_file_batch(char*);
+void exec_file_batch(char*, unsigned int);
 
 CommandRecord* get_record(const int*, CommandRecord*, int);
 
