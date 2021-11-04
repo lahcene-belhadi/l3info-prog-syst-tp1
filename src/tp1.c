@@ -87,7 +87,76 @@ int exec_batch(char ** command, CommandRecord* record) {
 /**
  * Executes all the commands contained in a file
  */
-void exec_file_batch(char * filename, unsigned int limit) {
+void exec_file_batch(char * filename) {
+
+    int nbcmd = 0;
+    CommandRecord* commands = file_to_record(filename, &nbcmd);
+
+    int retval = 0;
+
+    for (int i=0; i < nbcmd; i++) {
+        
+        CommandRecord* current = &commands[i];        
+
+        char** cmd = current->argv;
+
+        // Tells that command is being executed
+        current->status = 1;
+
+        // Get the time when the command had been executed
+        time_t begin = time(&begin);
+        current->begin = begin;
+
+        retval = exec_batch(cmd, current);
+
+    }
+
+    // Wait for all the process to end
+    int ret = 0;
+    int pid;
+
+    time_t total_duration = 0;
+    for (int i=0; i < nbcmd; i++) {
+
+        pid = wait(&ret);
+
+        // Set the end of the process for the record
+        time_t end = time(&end);
+
+        CommandRecord* record_ = get_record(&pid, commands, nbcmd);
+
+        if (record_) {
+         
+            record_->end = end;
+            record_->status = 0;
+
+            // Set the retval
+            record_->retval = ret;
+
+            time_t duration = record_->end - record_->begin;
+
+            total_duration += duration;
+
+            printf("Record %s : %d %d %ld %ld %ld\n", 
+                argv_to_line(record_->argv), record_->pid, record_->status,
+                record_->begin, record_->end, duration
+            );
+        
+        }
+        
+        else 
+            printf("The process %d doesn't exist\n", pid);
+    
+    }
+
+    printf("FIN : Les processus se sont executes en %lds\n", total_duration);
+
+}
+
+/**
+ * Executes all the commands contained in a file with a limit
+ */
+void exec_file_batch_limit(char * filename, unsigned int limit) {
 
     int nbcmd = 0;
     CommandRecord* commands = file_to_record(filename, &nbcmd);
