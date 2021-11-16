@@ -35,3 +35,12 @@ eflink:
 clear:
 	rm *.o
 	rm testfile.txt
+
+# Build Affiche
+affiche: affbuild afflink clear
+
+affbuild: src/affiche/*.c
+	gcc -g -c src/affiche/*.c
+
+afflink:
+	gcc -o bin/affiche *.o
